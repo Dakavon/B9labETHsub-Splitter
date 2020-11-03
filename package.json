@@ -1,0 +1,17 @@
+{
+  "name": "b9lab_ethsub-project1-splitter",
+  "version": "0.1.0",
+  "description": "Small project and assisted by https://academy.b9lab.com",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Niels Launert",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.2.0"
+  }
+}
