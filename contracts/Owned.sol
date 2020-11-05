@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: Unlicense
+
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Owned <<<
 //
-//Last update: 03.11.2020
+//Last update: 05.11.2020
 
 pragma solidity 0.6.12;
 

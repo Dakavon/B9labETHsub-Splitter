@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: Unlicense
+
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Splitter <<<
 //
-//Last update: 03.11.2020
+//Last update: 05.11.2020
 
 pragma solidity 0.6.12;
 
@@ -30,7 +32,7 @@ contract Splitter is Stoppable{
     function split(address recipient1, address recipient2) public payable onlyIfRunning returns(bool success){
         require(msg.value > 0, "Nothing to split");
         require(recipient1 != address(0x0), "Not allowed to transfer to 0x0");
-        require(recipient1 != address(0x0), "Not allowed to transfer to 0x0");
+        require(recipient2 != address(0x0), "Not allowed to transfer to 0x0");
 
         uint amount = msg.value.div(2);
         uint remainder = msg.value.mod(2);
@@ -55,7 +57,10 @@ contract Splitter is Stoppable{
         uint amount = balances[msg.sender];
         balances[msg.sender] = 0;
 
-        msg.sender.transfer(amount);
+        //EIP 1884 (https://eips.ethereum.org/EIPS/eip-1884) within Istanbul hard fork
+        //Avoidance of Solidity's transfer() or send() methods
+        (bool transferSuccessful, ) = msg.sender.call{value: amount}("");
+        require(transferSuccessful, "Transfer failed.");
 
         emit LogWithdraw(msg.sender, amount);
         return true;

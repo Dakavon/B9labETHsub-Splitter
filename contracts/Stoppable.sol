@@ -1,7 +1,9 @@
+// SPDX-License-Identifier: Unlicense
+
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Stoppable <<<
 //
-//Last update: 03.11.2020
+//Last update: 05.11.2020
 
 pragma solidity 0.6.12;
 
@@ -61,5 +63,10 @@ contract Stoppable is Owned{
         msg.sender.transfer(address(this).balance); //owner gets all the rest of the balance
 
         return true;
+    }
+
+    //Retrieve contract state
+    function getState() public view returns(State contractState){
+        return state;
     }
 }
