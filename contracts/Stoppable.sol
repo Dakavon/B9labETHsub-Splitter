@@ -3,7 +3,7 @@
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Stoppable <<<
 //
-//Last update: 05.11.2020
+//Last update: 07.11.2020
 
 pragma solidity 0.6.12;
 
@@ -37,8 +37,9 @@ contract Stoppable is Owned{
     }
 
     //Initial function
-    constructor() public{
-        state = State.running;
+    constructor(State initialState) public{
+        require(uint8(initialState) <= 1, "Stoppable: Initial contract state can be 0 (paused) or 1 (running)");
+        state = initialState;
     }
 
     //Pause contract: No more interactions
@@ -60,9 +61,11 @@ contract Stoppable is Owned{
     //Kill switch for the whole contract, only if contract was deactivated at first
     function destroyContract() public onlyOwner onlyIfPaused returns(bool success){
         state = State.destroyed;
-        msg.sender.transfer(address(this).balance); //owner gets all the rest of the balance
 
-        return true;
+        //EIP 1884 (https://eips.ethereum.org/EIPS/eip-1884) within Istanbul hard fork
+        //Avoidance of Solidity's transfer() or send() methods
+        (bool success, ) = msg.sender.call{value: address(this).balance}("");
+        require(success, "Transfer failed");
     }
 
     //Retrieve contract state

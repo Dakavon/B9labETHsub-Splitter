@@ -3,7 +3,7 @@
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Owned <<<
 //
-//Last update: 05.11.2020
+//Last update: 07.11.2020
 
 pragma solidity 0.6.12;
 
@@ -15,8 +15,9 @@ contract Owned{
     //Variable declaration
     address private owner;
 
-    //Event
+    //Events
     event LogOwnerChanged(address indexed oldOwner, address indexed newOwner);
+    event LogOwnershipRenounced(address indexed owner);
 
     //Modifier
     modifier onlyOwner{
@@ -42,7 +43,14 @@ contract Owned{
         owner = newOwner;
 
         emit LogOwnerChanged(msg.sender, newOwner);
+        return true;
+    }
 
+    //Owner can resign
+    function renounceOwnership() public onlyOwner returns(bool success){
+        owner = address(0x0);
+
+        emit LogOwnershipRenounced(msg.sender);
         return true;
     }
 }
