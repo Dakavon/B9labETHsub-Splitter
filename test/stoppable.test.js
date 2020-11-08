@@ -1,7 +1,7 @@
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Stoppable <<< - Test file
 //
-//Last update: 07.11.2020
+//Last update: 08.11.2020
 
 const Stoppable = artifacts.require('Stoppable');
 const truffleAssert = require('truffle-assertions');
@@ -18,7 +18,7 @@ contract("Stoppable", (accounts) => {
         willFail: 3,
     };
 
-    before("should be five accounts availabl: ", async () => {
+    before("should be five accounts available: ", async () => {
         console.log("\n    There are five accounts available:");
         for(let i=0; i<5; i++){
             console.log(`\t#${i}: ${accounts[i]}`);
@@ -98,10 +98,6 @@ contract("Stoppable", (accounts) => {
 
     describe("function resumeContract()", async () => {
 
-        beforeEach("deploy new instance", async () => {
-            instance = await Stoppable.new(contractState.paused, {from: owner});
-        });
-
         it("should not be possible to resume contract by an attacker", async () => {
             instance = await Stoppable.new(contractState.paused, {from: owner});
 
@@ -137,7 +133,7 @@ contract("Stoppable", (accounts) => {
         });
     });
 
-    describe("function destroyContract()", async () =>{
+    describe("function destroyContract()", async () => {
 
         it("should not be possible to destroy contract by an attacker", async () => {
             instance = await Stoppable.new(contractState.paused, {from: owner});
@@ -148,7 +144,7 @@ contract("Stoppable", (accounts) => {
             );
 
             const _state = await instance.getState({from: attacker});
-            assert.strictEqual(_state.toNumber(), contractState.paused, "contract was set to 'destroyed' by an attacker");
+            assert.notStrictEqual(_state.toNumber(), contractState.destroyed, "contract was set to 'destroyed' by an attacker");
         });
 
         it("should not be possible to destroy contract if state is still 'running'", async () => {
@@ -160,7 +156,7 @@ contract("Stoppable", (accounts) => {
             );
 
             const _state = await instance.getState({from: owner});
-            assert.strictEqual(_state.toNumber(), contractState.running, "contract was set to 'destroyed' before it was set to 'paused'");
+            assert.notStrictEqual(_state.toNumber(), contractState.destroyed, "contract was set to 'destroyed' before it was set to 'paused'");
         });
 
         it("should only be destroyable by owner when paused", async () => {
@@ -169,12 +165,14 @@ contract("Stoppable", (accounts) => {
             // const returned = await instance.destroyContract.call({from: owner});
             // assert.strictEqual(returned, true, "contract cannot be destroyed by owner");
 
-            await instance.destroyContract({from: owner});
+            const txObj = await instance.destroyContract({from: owner});
+            truffleAssert.eventEmitted(txObj, 'LogStoppable');
+
             const _state = await instance.getState({from: sender});
             assert.strictEqual(_state.toNumber(), contractState.destroyed, "contract was not set to 'destroyed'");
         });
 
-        it("should not be possible to set state to 'paused' and 'running' if contract was destroyed", async () => {
+        it("should not be possible to set state to 'paused' or 'running' if contract was destroyed", async () => {
             instance = await Stoppable.new(contractState.paused, {from: owner});
             await instance.destroyContract({from: owner});
 
@@ -189,7 +187,8 @@ contract("Stoppable", (accounts) => {
             );
 
             const _state = await instance.getState({from: sender});
-            assert.strictEqual(_state.toNumber(), contractState.destroyed, "contract was set to 'paused'/'running'");
+            assert.notStrictEqual(_state.toNumber(), contractState.paused, "contract was set to 'paused'");
+            assert.notStrictEqual(_state.toNumber(), contractState.running, "contract was set to 'running'");
         });
     });
 

@@ -1,7 +1,7 @@
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Owned <<< - Test file
 //
-//Last update: 07.11.2020
+//Last update: 08.11.2020
 
 const Owned = artifacts.require('Owned');
 const truffleAssert = require('truffle-assertions');
@@ -12,7 +12,7 @@ contract("Owned", (accounts) => {
     const [owner, sender, attacker] = accounts;
     const zeroAddress = "0x0000000000000000000000000000000000000000";
 
-    before("should be five accounts availabl: ", async () => {
+    before("should be five accounts available: ", async () => {
         console.log("\n    There are five accounts available:");
         for(let i=0; i<5; i++){
             console.log(`\t#${i}: ${accounts[i]}`);

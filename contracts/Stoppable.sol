@@ -42,6 +42,11 @@ contract Stoppable is Owned{
         state = initialState;
     }
 
+    //Retrieve contract state
+    function getState() public view returns(State contractState){
+        return state;
+    }
+
     //Pause contract: No more interactions
     function pauseContract() public onlyOwner onlyIfRunning returns(bool success){
         state = State.paused;
@@ -62,14 +67,11 @@ contract Stoppable is Owned{
     function destroyContract() public onlyOwner onlyIfPaused returns(bool success){
         state = State.destroyed;
 
+        emit LogStoppable(msg.sender, state);
+
         //EIP 1884 (https://eips.ethereum.org/EIPS/eip-1884) within Istanbul hard fork
         //Avoidance of Solidity's transfer() or send() methods
-        (bool success, ) = msg.sender.call{value: address(this).balance}("");
+        (success, ) = msg.sender.call{value: address(this).balance}("");
         require(success, "Transfer failed");
-    }
-
-    //Retrieve contract state
-    function getState() public view returns(State contractState){
-        return state;
     }
 }
