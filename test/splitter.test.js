@@ -1,36 +1,44 @@
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Splitter <<< - Test file
 //
-//Last update: 05.11.2020
+//Last update: 14.11.2020
 
 const Splitter = artifacts.require('Splitter');
 const truffleAssert = require('truffle-assertions');
 
 contract("Splitter", (accounts) => {
 
-    //Prerequirement
-    it("should be minimum five accounts available", function(){
-        assert.isAtLeast(accounts.length, 5, "should have at least 5 accounts");
-    });
+    const toBN = web3.utils.toBN;
 
-    //Initialise
     let instance = null;
     const [owner, sender, recipient1, recipient2, attacker] = accounts;
     const zeroAddress = "0x0000000000000000000000000000000000000000";
+    const contractState = {
+        paused: 0,
+        running: 1,
+        destroyed: 2,
+    };
 
-    beforeEach(async () => {
-        instance = await Splitter.new({from: owner});
+    before("should be five accounts available: ", async () => {
+        console.log("\n    There are five accounts available:");
+        for(let i=0; i<5; i++){
+            console.log(`\t#${i}: ${accounts[i]}`);
+        }
+        console.log("\n");
     });
 
+    beforeEach(async () => {
+        instance = await Splitter.new(contractState.running, {from: owner});
+    });
 
     it("should have the initial balance of zero", async () => {
-        let contractBalance = await web3.eth.getBalance(instance.address);
+        const contractBalance = await web3.eth.getBalance(instance.address);
         assert.strictEqual(contractBalance.toString(10), "0", "is anything but zero");
     });
 
     describe("function split()", async () => {
-        let evenAmountToSplit = 1000;
-        let oddAmountToSplit = 1001;
+        const evenAmountToSplit = 1000;
+        const oddAmountToSplit = 1001;
 
 
         it("should not be invokable if contract is paused", async () => {
@@ -62,25 +70,37 @@ contract("Splitter", (accounts) => {
         });
 
         it("should be possible to split an even amount", async () => {
-            let returned = await instance.split.call(recipient1, recipient2, {from: sender, value: evenAmountToSplit});
+            const returned = await instance.split.call(recipient1, recipient2, {from: sender, value: evenAmountToSplit});
             assert.strictEqual(returned, true, "it is not possible to split an even amount");
 
-            let txObj = await instance.split(recipient1, recipient2, {from: sender, value: evenAmountToSplit});
-            truffleAssert.eventEmitted(txObj, 'LogSplit');
+            const senderBalanceBefore = await web3.eth.getBalance(sender);
 
-            let logSender = txObj.receipt.logs[0].args.sender;
-            let logRecipient1 = txObj.receipt.logs[0].args.recipient1;
-            let logRecipient2 = txObj.receipt.logs[0].args.recipient2;
-            let logAmount = txObj.receipt.logs[0].args.amount.toString(10);
+            const txObj = await instance.split(recipient1, recipient2, {from: sender, value: evenAmountToSplit});
+
+            const tx = await web3.eth.getTransaction(txObj.tx);
+            const txFee = toBN(tx.gasPrice).mul(toBN(txObj.receipt.gasUsed));
+            const senderBalanceAfter = await web3.eth.getBalance(sender);
+
+            assert.strictEqual(
+                toBN(senderBalanceBefore).sub(toBN(evenAmountToSplit)).sub(toBN(txFee)).toString(10),
+                senderBalanceAfter.toString(10),
+                "senders balance is not correct after split()"
+            );
+
+            truffleAssert.eventEmitted(txObj, 'LogSplit');
+            const logSender = txObj.receipt.logs[0].args.sender;
+            const logRecipient1 = txObj.receipt.logs[0].args.recipient1;
+            const logRecipient2 = txObj.receipt.logs[0].args.recipient2;
+            const logAmount = txObj.receipt.logs[0].args.amount.toString(10);
 
             assert.strictEqual(logSender, sender, "sender was not logged correcly");
             assert.strictEqual(logRecipient1, recipient1, "recipient1 was not logged correcly");
             assert.strictEqual(logRecipient2, recipient2, "recipient2 was not logged correcly");
             assert.strictEqual(logAmount, evenAmountToSplit.toString(10), "amount was not logged correcly");
 
-            let amountOfRecipeint1 = await instance.balances(recipient1);
-            let amountOfRecipeint2 = await instance.balances(recipient2);
-            let amountOfSender = await instance.balances(sender);
+            const amountOfRecipeint1 = await instance.balances(recipient1);
+            const amountOfRecipeint2 = await instance.balances(recipient2);
+            const amountOfSender = await instance.balances(sender);
 
             assert.strictEqual(amountOfRecipeint1.toString(10), '500', "amount was not splitted correctly");
             assert.strictEqual(amountOfRecipeint2.toString(10), '500', "amount was not splitted correctly");
@@ -88,17 +108,29 @@ contract("Splitter", (accounts) => {
         });
 
         it("should be possible to split an odd amount", async () => {
-            let returned = await instance.split.call(recipient1, recipient2, {from: sender, value: oddAmountToSplit});
+            const returned = await instance.split.call(recipient1, recipient2, {from: sender, value: oddAmountToSplit});
             assert.strictEqual(returned, true, "it is not possible to split an odd amount");
 
-            let txObj = await instance.split(recipient1, recipient2, {from: sender, value: oddAmountToSplit});
-            let logAmount = txObj.receipt.logs[0].args.amount.toString(10);
+            const senderBalanceBefore = await web3.eth.getBalance(sender);
 
+            const txObj = await instance.split(recipient1, recipient2, {from: sender, value: oddAmountToSplit});
+
+            const tx = await web3.eth.getTransaction(txObj.tx);
+            const txFee = toBN(tx.gasPrice).mul(toBN(txObj.receipt.gasUsed));
+            const senderBalanceAfter = await web3.eth.getBalance(sender);
+
+            assert.strictEqual(
+                toBN(senderBalanceBefore).sub(toBN(oddAmountToSplit)).sub(toBN(txFee)).toString(10),
+                senderBalanceAfter.toString(10),
+                "senders balance is not correct after split()"
+            );
+
+            const logAmount = txObj.receipt.logs[0].args.amount.toString(10);
             assert.strictEqual(logAmount, oddAmountToSplit.toString(10), "amount was not logged correctly");
 
-            let amountOfRecipeint1 = await instance.balances(recipient1);
-            let amountOfRecipeint2 = await instance.balances(recipient2);
-            let amountOfSender = await instance.balances(sender);
+            const amountOfRecipeint1 = await instance.balances(recipient1);
+            const amountOfRecipeint2 = await instance.balances(recipient2);
+            const amountOfSender = await instance.balances(sender);
 
             assert.strictEqual(amountOfRecipeint1.toString(10), '500', "amount was not splitted correctly");
             assert.strictEqual(amountOfRecipeint2.toString(10), '500', "amount was not splitted correctly");
@@ -108,8 +140,7 @@ contract("Splitter", (accounts) => {
 
 
     describe("function withdraw()", async () => {
-        let evenAmountToSplit = 1000;
-        let oddAmountToSplit = 1001;
+        const evenAmountToSplit = 1000;
 
         beforeEach(async () => {
             await instance.split(recipient1, recipient2, {from: sender, value: evenAmountToSplit});
@@ -117,8 +148,8 @@ contract("Splitter", (accounts) => {
 
 
         it("should have the initial balance of '1000'", async () => {
-            let contractBalance = await web3.eth.getBalance(instance.address);
-            assert.strictEqual(contractBalance.toString(10), "1000", "is anything but zero");
+            const contractBalance = await web3.eth.getBalance(instance.address);
+            assert.strictEqual(contractBalance.toString(10), evenAmountToSplit.toString(10), "is anything but zero");
         });
 
         it("should not be possible to withdraw when contract is paused", async () => {
@@ -138,21 +169,36 @@ contract("Splitter", (accounts) => {
         });
 
         it("should be possible to withdraw funds", async () => {
-            let returned = await instance.withdraw.call({from: recipient1});
+            const amount = evenAmountToSplit/2;
+
+            const returned = await instance.withdraw.call({from: recipient1});
             assert.strictEqual(returned, true, "it is not possible to withdraw funds");
 
-            let amountBefore = await instance.balances(recipient1);
-            assert.strictEqual(amountBefore.toString(10), '500', "amount to withdraw is not correct")
+            const amountOfRecipientBefore = await instance.balances(recipient1);
+            assert.strictEqual(amountOfRecipientBefore.toString(10), amount.toString(10), "amount to withdraw is not correct")
 
-            let txObj = await instance.withdraw({from: recipient1});
+            const recipientBalanceBefore = await web3.eth.getBalance(recipient1);
+
+            const txObj = await instance.withdraw({from: recipient1});
+
+            const tx = await web3.eth.getTransaction(txObj.tx);
+            const txFee = toBN(tx.gasPrice).mul(toBN(txObj.receipt.gasUsed));
+            const recipientBalanceAfter = await web3.eth.getBalance(recipient1);
+
+            assert.strictEqual(
+                toBN(recipientBalanceBefore).add(toBN(amount)).sub(toBN(txFee)).toString(10),
+                recipientBalanceAfter.toString(10),
+                "recipients balance is not correct after withdraw()"
+            );
+
             truffleAssert.eventEmitted(txObj, 'LogWithdraw');
+            const logRecipient = txObj.receipt.logs[0].args.recipient;
+            const logAmount = txObj.receipt.logs[0].args.amount.toString(10);
 
-            let logRecipient = txObj.receipt.logs[0].args.recipient;
-            let logAmount = txObj.receipt.logs[0].args.amount.toString(10);
             assert.strictEqual(logRecipient, recipient1, "recipient was not logged correcly");
-            assert.strictEqual(logAmount, (evenAmountToSplit/2).toString(10), "amount was not logged correcly");
+            assert.strictEqual(logAmount, amount.toString(10), "amount was not logged correcly");
 
-            let amountAfter = await instance.balances(recipient1);
+            const amountAfter = await instance.balances(recipient1);
             assert.strictEqual(amountAfter.toString(10), '0', "amount after invoking withdraw() is not correct");
         });
 

@@ -3,7 +3,7 @@
 //B9lab ETH-SUB Ethereum Developer Subscription Course
 //>>> Splitter <<<
 //
-//Last update: 05.11.2020
+//Last update: 10.11.2020
 
 pragma solidity 0.6.12;
 
@@ -21,6 +21,9 @@ contract Splitter is Stoppable{
 
     event LogSplit(address indexed sender, address indexed recipient1, address indexed recipient2, uint amount);
     event LogWithdraw(address indexed recipient, uint amount);
+
+    constructor(State initialState)
+        Stoppable(initialState) public { }
 
     /**
      * @dev Amount attached to the transaction are splitted between recipient1 and recipient2
@@ -52,17 +55,16 @@ contract Splitter is Stoppable{
      * @dev Recipients can withdraw their amount locked in the contract
      */
     function withdraw() public onlyIfRunning returns(bool success){
-        require(balances[msg.sender] > 0, "No value to retrieve");
-
         uint amount = balances[msg.sender];
+        require(amount > 0, "No value to retrieve");
+
         balances[msg.sender] = 0;
+
+        emit LogWithdraw(msg.sender, amount);
 
         //EIP 1884 (https://eips.ethereum.org/EIPS/eip-1884) within Istanbul hard fork
         //Avoidance of Solidity's transfer() or send() methods
-        (bool transferSuccessful, ) = msg.sender.call{value: amount}("");
-        require(transferSuccessful, "Transfer failed.");
-
-        emit LogWithdraw(msg.sender, amount);
-        return true;
+        (success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
     }
 }
