@@ -9,5 +9,10 @@ module.exports = function (deployer, network, accounts) {
       destroyed: 2,
   };
 
-  deployer.deploy(Splitter, contractState.running, {from: accounts[0]});
+  if(network === "ropsten"){
+    deployer.deploy(Splitter, contractState.running, {from: accounts[0]});
+  }
+  else if(network === "develop"){
+    deployer.deploy(Splitter, contractState.running, {from: accounts[0]});
+  }
 };
