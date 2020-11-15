@@ -1,6 +1,6 @@
 {
   "name": "b9lab_ethsub-project1-splitter",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Small project and assisted by https://academy.b9lab.com",
   "main": "truffle-config.js",
   "directories": {

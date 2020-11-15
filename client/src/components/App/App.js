@@ -122,7 +122,7 @@ export default function App() {
         console.log("receipt: ", receipt);
         console.log("error message: ", error);
       });
-      console.log("contract is now paused")
+      console.log("contract is now paused");
     }
     catch(error){
       console.error(error);
@@ -142,6 +142,7 @@ export default function App() {
         console.log("r: ", receipt);
         console.log("error message: ", error);
       });
+      console.log("contract is now resumed");
     }
     catch(error){
       console.error(error);
@@ -161,6 +162,7 @@ export default function App() {
         console.log("receipt: ", receipt);
         console.log("error message: ", error);
       });
+      console.log("contract is now destroyed");
     }
     catch(error){
       console.error(error);
@@ -294,7 +296,7 @@ export default function App() {
               />
               <Button variant="dark" onClick={() => getBalance(appVariables.inputs.addressBalance)}>
                 Check "balances"
-              </Button>{' '}{contractVariables.addressBalance !== "" && appVariables.inputs.addressBalance + '  has  ' + contractVariables.addressBalance + '  Wei.'}
+              </Button>{' '}{contractVariables.addressBalance !== "" && contractVariables.addressBalance + '  Wei.'}
             </form>
 
             <form>

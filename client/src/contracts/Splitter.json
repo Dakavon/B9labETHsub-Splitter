@@ -5860,6 +5860,114 @@
     "version": "0.6.12+commit.27d51765.Emscripten.clang"
   },
   "networks": {
+    "3": {
+      "events": {
+        "0xfcf23a92150d56e85e3a3d33b357493246e55783095eb6a733eb8439ffc752c8": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "oldOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "LogOwnerChanged",
+          "type": "event"
+        },
+        "0x2dde1bc8b58ef192e7df3e7a354521d958331021e450d544346b936936916ef4": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            }
+          ],
+          "name": "LogOwnershipRenounced",
+          "type": "event"
+        },
+        "0x5861cc23de8cab7630160dc0ee2c1e9aa2a0f1498f73c387807c0100e6684da7": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "recipient1",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "recipient2",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogSplit",
+          "type": "event"
+        },
+        "0xb69c8d69472936aa400ce372a28aabe319f1770c9cf6bdeadf0c399035cd5ebf": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "sender",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "enum Stoppable.State",
+              "name": "state",
+              "type": "uint8"
+            }
+          ],
+          "name": "LogStoppable",
+          "type": "event"
+        },
+        "0x4ce7033d118120e254016dccf195288400b28fc8936425acd5f17ce2df3ab708": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "recipient",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "name": "LogWithdraw",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0x85c5591BC80Db3C39Ab8470b9E5d85E17Bb3a753",
+      "transactionHash": "0x144b523e16816cc12afbaa7d39e6b4088937a3ec0ba3538b7e4d44e8164a59cd"
+    },
     "5777": {
       "events": {
         "0xfcf23a92150d56e85e3a3d33b357493246e55783095eb6a733eb8439ffc752c8": {
@@ -5970,7 +6078,7 @@
     }
   },
   "schemaVersion": "3.2.5",
-  "updatedAt": "2020-11-15T19:12:21.557Z",
+  "updatedAt": "2020-11-15T21:48:16.477Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
