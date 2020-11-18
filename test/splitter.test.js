@@ -6,9 +6,9 @@
 const Splitter = artifacts.require('Splitter');
 const truffleAssert = require('truffle-assertions');
 
-contract("Splitter", (accounts) => {
+const { toBN } = web3.utils;
 
-    const toBN = web3.utils.toBN;
+contract("Splitter", (accounts) => {
 
     let instance = null;
     const [owner, sender, recipient1, recipient2, attacker] = accounts;
